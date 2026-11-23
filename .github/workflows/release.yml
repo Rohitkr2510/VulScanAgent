@@ -70,29 +70,4 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          body: |
-            ## 🛡️ VulScanAgent Ready-to-Use Production Release
-
-            ### 🚀 Quickstart Usage Options
-
-            #### Option 1: Docker (No Installation Needed)
-            ```bash
-            docker run --rm -v $(pwd):/workspace \
-              -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
-              -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
-              ghcr.io/${{ github.repository }}:latest scan --local /workspace
-            ```
-
-            #### Option 2: Python / PyPI
-            ```bash
-            pip install git+https://github.com/${{ github.repository }}.git
-            vulscan scan --repo <your-repo-url>
-            ```
-
-            #### Option 3: GitHub Action
-            ```yaml
-            - uses: ${{ github.repository }}@v1
-              with:
-                gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-            ```
+          body_path: .github/RELEASE_NOTES.md
