@@ -207,7 +207,9 @@ Traditional enterprise security tools act as **passive alert finders** that shif
 | **Mean Time to Remediate** | **45 – 90 days** | **30 – 60 days** | **< 3 minutes (End-to-End PR)** |
 | **Cost & Deployment** | $50,000 – $200,000/yr license | $30,000 – $150,000/yr cloud bill | **Open Source + Cents per LLM scan** |
 
-> 📖 **Full Comparative Whitepaper:** [`docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md`](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md)
+> 📖 **Comparative Whitepapers:**
+> - **Enterprise Showdown (vs. Checkmarx & Orca Security):** [`docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md`](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md)
+> - **Industry Landscape (vs. Snyk, SonarQube, Dependabot, Wiz, CodeQL & Fortify):** [`docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md`](docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md)
 
 ---
 
