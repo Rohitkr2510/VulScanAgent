@@ -1,0 +1,70 @@
+name: 'VulScanAgent'
+description: 'Autonomous AI DevSecOps Security Engineer that scans code, writes AST patches, validates with tests, and raises Pull Requests.'
+author: 'Rohit Kumar'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  repo:
+    description: 'Target GitHub repository URL to scan and repair (optional, defaults to local workspace)'
+    required: false
+    default: ''
+  local_dir:
+    description: 'Local directory to scan (defaults to current workspace)'
+    required: false
+    default: '.'
+  provider:
+    description: 'AI model provider: google, anthropic, openai'
+    required: false
+    default: 'google'
+  severity:
+    description: 'Minimum vulnerability severity threshold (LOW, MEDIUM, HIGH, CRITICAL)'
+    required: false
+    default: 'MEDIUM'
+  gemini_api_key:
+    description: 'Google Gemini API Key'
+    required: false
+    default: ''
+  anthropic_api_key:
+    description: 'Anthropic Claude API Key'
+    required: false
+    default: ''
+  openai_api_key:
+    description: 'OpenAI API Key'
+    required: false
+    default: ''
+  github_token:
+    description: 'GitHub Personal Access Token with repo write permissions to create PRs'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r ${{ github.action_path }}/requirements.txt
+        pip install --no-deps -e ${{ github.action_path }}
+
+    - name: Run VulScanAgent
+      shell: bash
+      env:
+        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
+        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        if [ -n "${{ inputs.repo }}" ]; then
+          vulscan scan --repo "${{ inputs.repo }}" --provider "${{ inputs.provider }}" --severity "${{ inputs.severity }}"
+        else
+          vulscan scan --local "${{ inputs.local_dir }}" --provider "${{ inputs.provider }}" --severity "${{ inputs.severity }}"
+        fi

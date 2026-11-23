@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vulscanagent"
+version = "1.0.0"
+description = "Autonomous AI DevSecOps Security Engineer that scans, repairs, tests, and raises PRs."
+readme = "README.md"
+authors = [{ name = "Rohit Kumar", email = "Rohitkr2510@users.noreply.github.com" }]
+license = { text = "Apache-2.0" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.30.0",
+    "pydantic>=2.7.0",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "PyYAML>=6.0.1",
+    "GitPython>=3.1.43",
+    "PyGithub>=2.3.0",
+    "openai>=1.30.0",
+    "anthropic>=0.28.0",
+    "google-genai>=0.1.1",
+    "python-dotenv>=1.0.1",
+    "requests>=2.31.0",
+    "semgrep>=1.70.0",
+    "python-multipart>=0.0.9",
+    "jinja2>=3.1.5",
+]
+
+[project.scripts]
+vulscan = "main:app"
+
+[tool.setuptools]
+py-modules = ["main"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agent*", "config*", "dashboard*"]

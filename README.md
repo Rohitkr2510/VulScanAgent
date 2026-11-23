@@ -12,7 +12,7 @@
 
 **Autonomous AI DevSecOps Security Engineer**: Scans codebases for vulnerabilities, performs context-aware AST remediation using Google Gemini, Anthropic Claude, or OpenAI, validates fixes with automated testing, and raises structured Pull Requests for human review.
 
-[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Cost Estimation & ROI](docs/comparisons/REALISTIC_COST_ESTIMATION.md) • [Competitive Comparisons](docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
+[Quickstart](#-quickstart) • [Release Guide](docs/user-guides/HOW_TO_RELEASE.md) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Cost Estimation & ROI](docs/comparisons/REALISTIC_COST_ESTIMATION.md) • [Competitive Comparisons](docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
 
 </div>
 
