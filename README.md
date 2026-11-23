@@ -1,101 +1,191 @@
 # VulScanAgent 🛡️
 
-> **Autonomous AI Security Engineer**: Scans codebases for vulnerabilities, performs intelligent context-aware remediation using OpenAI / Claude / Gemini, validates fixes with automated testing, and raises structured Pull Requests for human review.
+<div align="center">
+
+[![CI/CD Build](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/vulscan.yml)
+[![Tests Passing](https://img.shields.io/badge/tests-28%20passed-success?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
+[![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.14-blue?style=for-the-badge&logo=python&logoColor=white)](pyproject.toml)
+[![AI Providers](https://img.shields.io/badge/AI%20Providers-OpenAI%20%7C%20Claude%20%7C%20Gemini-8a2be2?style=for-the-badge&logo=google&logoColor=white)](docs/configuration/ai_providers.md)
+[![Security Policy](https://img.shields.io/badge/Governance-Zero%20Auto--Merge-red?style=for-the-badge&logo=github&logoColor=white)](docs/architecture/agent_threat_model.md)
+[![Framework Compliance](https://img.shields.io/badge/Taxonomy-MITRE%20ATT%26CK%20%7C%20D3FEND-informational?style=for-the-badge)](docs/architecture/standards_compliance.md)
+[![Docker Support](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](Dockerfile)
+
+**Autonomous AI DevSecOps Security Engineer**: Scans codebases for vulnerabilities, performs context-aware AST remediation using Google Gemini, Anthropic Claude, or OpenAI, validates fixes with automated testing, and raises structured Pull Requests for human review.
+
+[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
+
+</div>
 
 ---
 
-## ✨ Features
+## ✨ Core Capabilities
 
 - 🔍 **Multi-Layer Vulnerability Scanning**:
   - **SAST**: SQL Injection, Command Injection, Path Traversal, Dangerous Eval, XSS (Semgrep + built-in AST engine).
-  - **Secrets**: API keys (AWS, GitHub, OpenAI), private keys, passwords, database URLs.
-  - **SCA**: Vulnerable package manifests (`requirements.txt`, `package.json`, CVE tracking).
-  - **IaC & CI/CD**: Container root executions, unpinned image tags, dangerous `pull_request_target` workflows.
+  - **Secrets**: High-entropy API keys (AWS, GitHub, OpenAI), private keys, passwords, database URLs.
+  - **SCA**: Manifest auditing (`requirements.txt`, `package.json`, modern PEP 621 `pyproject.toml`, CVE tracking).
+  - **IaC & Containers**: Container root executions, unpinned image tags, public port bindings (`0.0.0.0`), dangerous GitHub Actions triggers.
 - 🤖 **Multi-Provider AI Fix Engine**:
-  - Seamlessly route between **OpenAI (GPT-4o)**, **Anthropic (Claude 3.5 Sonnet)**, and **Google (Gemini 2.5 Pro)**.
-  - Automatic fallback cascading if one provider hits rate limits or quota errors.
-  - Syntax AST pre-validation prevents broken code generation.
+  - Seamlessly route between **Google (Gemini 3.5 Flash / 3.6 Flash / Pro)**, **Anthropic (Claude 3.5 Sonnet)**, and **OpenAI (GPT-4o)**.
+  - Automatic fallback cascading with exponential backoff if a provider experiences quota or demand spikes.
+  - AST syntax pre-validation rejects broken code before saving to disk.
 - 🧪 **Safety-Gated Test Verification**:
   - Runs repo test suites (`pytest`, `npm test`, `go test`, `mvn test`) before and after applying fixes.
-  - Automatic retry feedback loop: if a fix fails tests, error logs are passed back to the LLM to adjust the fix.
+  - Self-healing retry feedback loop: if a fix fails tests, error stack traces are diagnosed to prescribe corrections.
   - Automatically synthesizes targeted regression tests for the remediated vulnerability.
 - 🚀 **GitHub Pull Request Automation**:
-  - Handles **public and private** repositories via Fine-Grained Personal Access Tokens.
+  - Handles **public and private** repositories via Personal Access Tokens.
   - Creates isolated branches (`fix/vuln-<id>`).
-  - Generates comprehensive PR descriptions with CVE references, root-cause analysis, and human reviewer checklists.
+  - Generates comprehensive PR descriptions with CVE references, root-cause analysis, test badges, and human reviewer checklists.
 
 ---
 
 ## 👥 Multi-Agent Collaborative Architecture
 
-Inspired by advanced agentic workflows (e.g. [salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI](https://github.com/salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI)), **VulScanAgent** operates as a specialized multi-agent security team rather than a single generalist prompt:
+Inspired by advanced agentic workflows (e.g. [salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI](https://github.com/salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI) and [awesome-agent-security](https://github.com/basitalisandhu/awesome-agent-security)), **VulScanAgent** operates as a specialized multi-agent security team rather than a single generalist prompt:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        VulScanAgent Team                               │
-│                                                                        │
-│   🎯 ScanStrategist        Inspects repository stack & sets priorities │
-│          │                                                             │
-│          ▼                                                             │
-│   🔍 Multi-Layer Scanner   Executes SAST, SCA, Secrets, IaC engines    │
-│          │                                                             │
-│          ▼                                                             │
-│   🛠️ FixArchitect          Crafts surgical, non-breaking patch        │
-│          │                                                             │
-│          ▼                                                             │
-│   🧐 SecurityReviewer      Critiques patch & checks for regressions   │
-│          │                                                             │
-│          ▼                                                             │
-│   🧪 TestVerifier          Executes test suite & generates tests       │
-│          │                                                             │
-│          ├── (On Test Failures) ──► 🩺 ErrorDiagnostician              │
-│          │                         (Diagnoses errors & guides fix)     │
-│          ▼ (On Test Pass)                                              │
-│   📝 PRAuditor             Compiles audit documentation & raises PR    │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    classDef actor fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef process fill:#1e293b,stroke:#06b6d4,stroke-width:1.5px,color:#f8fafc;
+    classDef decision fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef success fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef failure fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#f8fafc;
+
+    Repo[("📂 Target Repository")]:::actor --> Strategist["🎯 ScanStrategist\n(Analyze Topology & Attack Surface)"]:::process
+    Strategist --> Baseline["🧪 TestRunner\n(Establish Baseline Test Health)"]:::process
+    Baseline --> Scanner["🔍 CompositeScanner\n(SAST, SCA, Secrets, IaC)"]:::process
+    
+    Scanner --> Findings{"Vulnerabilities\nDetected?"}:::decision
+    Findings -- "None" --> Clean(["🎉 Repository Clean!\nZero Findings"]):::success
+    Findings -- "Yes" --> Architect["🛠️ FixArchitect\n(Synthesize Precision AST Patch)"]:::process
+
+    Architect --> Reviewer["🧐 SecurityReviewer\n(Evaluate MITRE & OWASP Standards)"]:::process
+    Reviewer --> ReviewCheck{"Reviewer\nApproved?"}:::decision
+    ReviewCheck -- "Revisions Needed" --> Architect
+    
+    ReviewCheck -- "Approved (9/10)" --> Sandbox["🧪 TestRunner\n(Run Repository Test Suite)"]:::process
+    Sandbox --> TestStatus{"Tests Pass &\nZero Regressions?"}:::decision
+    TestStatus -- "Tests Broken" --> Diagnostician["🩺 ErrorDiagnostician\n(Parse Stack Trace & Prescribe Fix)"]:::failure
+    Diagnostician --> Architect
+    
+    TestStatus -- "5/5 Tests Passed" --> ReScan{"Re-scan:\nVulnerability\nEradicated?"}:::decision
+    ReScan -- "Yes" --> Verifier["🧪 TestVerifier\n(Synthesize Regression Test)"]:::process
+    Verifier --> Auditor["📝 PRAuditor\n(Draft Audit Report & PR)"]:::process
+    Auditor --> PRGate(["👤 Human Security Reviewer\n(Mandatory Sign-off Gate)"]):::success
 ```
 
-| Agent Persona | Role | Responsibility |
+| Agent Persona | Role | Primary Responsibility |
 |---|---|---|
-| **`ScanStrategist`** | Recon & Planning | Inspects repo topology, manifests (`package.json`, `requirements.txt`, `Dockerfile`) and optimizes scanning rules. |
-| **`FixArchitect`** | Remediation | Synthesizes minimal code patches preserving coding style and business logic. |
-| **`SecurityReviewer`** | Senior Critic | Rigorously critiques proposed patches before application; prevents secondary vulnerabilities. |
+| **`ScanStrategist`** | Recon & Planning | Inspects repo topology, manifests (`package.json`, `pyproject.toml`, `Dockerfile`) and tailors attack vectors. |
+| **`FixArchitect`** | Remediation | Synthesizes minimal AST code patches preserving existing coding style and business logic. |
+| **`SecurityReviewer`** | Senior Critic | Critiques proposed patches against MITRE ATT&CK & OWASP standards; prevents secondary vulnerabilities. |
 | **`ErrorDiagnostician`** | Failure Specialist | When tests or compilation fail, parses tracebacks and provides actionable fix prescriptions. |
 | **`TestVerifier`** | Verification | Coordinates test execution, monitors timeouts, and synthesizes targeted regression tests. |
 | **`PRAuditor`** | Technical Writer | Compiles executive security summaries, reviewer checklists, and GitHub Pull Request documentation. |
 
 ---
 
-## 🏗️ Architecture
+## 🎯 Turn-by-Turn Sequence Flow
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer / Webhook
+    participant Orch as VulScan Orchestrator
+    participant Strat as ScanStrategist
+    participant Scan as CompositeScanner
+    participant Arch as FixArchitect
+    participant AI as AI Engine (Gemini / Claude / OpenAI)
+    participant Rev as SecurityReviewer
+    participant Test as TestRunner (Sandbox)
+    participant PR as PRCreator (GitHub API)
+
+    Dev->>Orch: Trigger Scan (Repo URL / Local Dir)
+    Orch->>Strat: Assess repository manifests & stack
+    Strat->>AI: Formulate scanning focus areas
+    AI-->>Strat: Attack surface recommendations
+    Strat-->>Orch: Strategy report
+
+    Orch->>Scan: Run SAST, SCA, Secrets & IaC scanners
+    Scan-->>Orch: Yield normalized VulFindings
+
+    loop For each detected vulnerability
+        Orch->>Arch: Request fix (finding + file context)
+        Arch->>AI: Synthesize minimal AST patch
+        AI-->>Arch: Return patch within XML quarantine
+        Arch-->>Orch: Proposed patch & explanation
+
+        Orch->>Rev: Request peer critique
+        Rev->>AI: Evaluate patch against MITRE ATT&CK & OWASP
+        AI-->>Rev: Critique & approval verdict
+        Rev-->>Orch: Verdict: APPROVED (Score: 9/10)
+
+        Orch->>Test: Apply fix & execute repository test suite
+        Test-->>Orch: Exit code 0 (All tests passed)
+
+        Orch->>Scan: Re-scan affected file
+        Scan-->>Orch: Confirmed: 0 findings remaining
+
+        Orch->>PR: Push isolated branch & raise Pull Request
+        PR-->>Dev: Pull Request opened for human approval
+    end
 ```
-                 ┌─────────────────────────────────┐
-                 │       User / CLI / Webhook      │
-                 └────────────────┬────────────────┘
-                                  │
-                                  ▼
-                   ┌──────────────────────────────┐
-                   │     VulScan Orchestrator     │
-                   └──────────────┬───────────────┘
-                                  │
-         ┌────────────────────────┼────────────────────────┐
-         ▼                        ▼                        ▼
-┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
-│  Repo Connector  │    │ Multi-Scanner    │    │   Test Runner    │
-│  (Clone / Branch)│    │ (SAST/SCA/IaC)   │    │  (pytest / npm)  │
-└──────────────────┘    └──────────────────┘    └──────────────────┘
-                                  │
-                                  ▼
-                   ┌──────────────────────────────┐
-                   │      AI Fix Engine           │
-                   │ (OpenAI / Claude / Gemini)   │
-                   └──────────────┬───────────────┘
-                                  │
-                                  ▼
-                   ┌──────────────────────────────┐
-                   │    GitHub PR Creator         │
-                   └──────────────────────────────┘
+
+---
+
+## 🧪 Live Benchmark: `face-recognition-devops`
+
+VulScanAgent was benchmarked live against [Rohitkr2510/face-recognition-devops](https://github.com/Rohitkr2510/face-recognition-devops) (FastAPI + OpenCV Haar Cascades + Jinja2 + Docker) powered by **Google Gemini**:
+
+### Remediation Scorecard
+
+| Metric | Benchmark Result |
+| :--- | :--- |
+| **Target Repository** | `Rohitkr2510/face-recognition-devops` |
+| **AI Engine Used** | Google Gemini (`gemini-3.5-flash` / `gemini-3.6-flash`) |
+| **Vulnerabilities Discovered** | 2 (`[HIGH]` SCA Jinja2 CVE-2024-56326 + `[MEDIUM]` IaC Port Exposure) |
+| **Vulnerabilities Remediated** | **2 / 2 (100% Remediation Rate)** |
+| **Automated Test Results** | **5 / 5 Unit & Integration Tests Passed in 2.71s** |
+| **Post-Patch Re-Scan** | **0 Remaining Vulnerabilities Meeting Threshold** |
+| **Human Review Governance** | Zero Auto-Merge enforced; Pull Request draft generated |
+
+### Verified Patch Diffs Applied by Gemini
+
+```diff
+# 1. pyproject.toml — Resolved CVE-2024-56326 (Jinja2 Sandbox Breakout)
+ dependencies = [
+   "fastapi>=0.116,<1",
+-  "jinja2>=3.1,<4",
++  "jinja2>=3.1.5,<4",
+   "numpy>=2.3,<3",
+   "opencv-python-headless>=4.12,<5",
+ ]
+
+# 2. docker-compose.yml — Resolved Port Exposure (0.0.0.0 to Loopback)
+ services:
+   sightline:
+     build: .
+     ports:
+-      - "8000:8000"
++      - "127.0.0.1:8000:8000"
+     restart: unless-stopped
 ```
+
+---
+
+## 📽️ Presentation Slides & Executive Demo
+
+To present VulScanAgent to stakeholders, leadership, or engineering teams, ready-to-use presentation assets are included directly in the repository:
+
+- 📊 **PowerPoint Presentation Deck**: [`docs/presentations/VulScanAgent-Demo-Slides.pptx`](docs/presentations/VulScanAgent-Demo-Slides.pptx)  
+  *16:9 widescreen, dark cyberpunk aesthetic, card containers, code diff blocks, and embedded speaker notes.*
+- 🌐 **Interactive Web Slide Deck**: [`docs/presentations/demo-slides.html`](docs/presentations/demo-slides.html)  
+  *Open in any web browser with keyboard navigation (`→` / `Space` next, `←` prev, `F` fullscreen).*
+- 🐍 **Repeatable Deck Builder**: [`docs/presentations/generate_pptx.py`](docs/presentations/generate_pptx.py)  
+  *Python script using `python-pptx` to rebuild or customize slides.*
+- 🎨 **Visual Architecture Deep Dive**: [`docs/architecture/diagrams.md`](docs/architecture/diagrams.md)  
+  *Dedicated Mermaid diagrams covering threat models, defense-in-depth guardrails, and failover states.*
 
 ---
 
@@ -105,11 +195,12 @@ Inspired by advanced agentic workflows (e.g. [salah9003/Automated-Vulnerability-
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/VulScanAgent.git
+git clone https://github.com/Rohitkr2510/VulScanAgent.git
 cd VulScanAgent
 
 # Create and activate virtual environment
 python -m venv .venv
+
 # On Windows:
 .venv\Scripts\activate
 # On Linux/macOS:
@@ -133,15 +224,15 @@ Edit `.env`:
 GITHUB_TOKEN=ghp_your_github_token_here
 
 # At least one AI provider key is required:
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
 GEMINI_API_KEY=AIzaSy...
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
 
-# Default provider choice: auto | anthropic | openai | google
+# Default provider choice: auto | google | anthropic | openai
 AI_PROVIDER=auto
 ```
 
-### 3. Verify Configuration
+### 3. Verify Connectivity
 
 ```bash
 python main.py verify-keys
@@ -167,13 +258,13 @@ Configure your GitHub repository webhook to:
 ### Scan a Remote Repository (Public or Private)
 
 ```bash
-python main.py scan --repo https://github.com/org/private-repo --branch main --severity HIGH
+python main.py scan --repo https://github.com/Rohitkr2510/face-recognition-devops --branch main --provider google --severity LOW
 ```
 
-### Scan and Test a Local Directory
+### Scan a Local Directory
 
 ```bash
-python main.py scan --local ./my-project --severity MEDIUM
+python main.py scan --local ./my-project --provider google --severity MEDIUM
 ```
 
 ---
@@ -183,10 +274,17 @@ python main.py scan --local ./my-project --severity MEDIUM
 Run VulScanAgent in an isolated container to ensure tests and scanners never access your host environment:
 
 ```bash
-# Build and start via Docker Compose
-docker compose up -d
+# Using cross-platform helper scripts:
+# On Windows:
+.\docker-run.ps1
 
-# View dashboard logs
+# On Linux/macOS:
+./docker-run.sh
+```
+
+Or via Docker Compose:
+```bash
+docker compose up -d
 docker compose logs -f
 ```
 
@@ -201,71 +299,35 @@ VulScanAgent includes a ready-to-use GitHub Action workflow in [`.github/workflo
 To enable automated scanning on every `push` and `pull_request`:
 1. Add the workflow file to your repository.
 2. In GitHub **Settings > Secrets and variables > Actions**, add your API keys:
-   - `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` or `GEMINI_API_KEY`
+   - `GEMINI_API_KEY` or `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
    - `GITHUB_TOKEN` is automatically provided by GitHub Actions!
 
-### Select Specific AI Provider
-
-```bash
-# Force Claude
-python main.py scan --repo https://github.com/example/repo --provider anthropic
-
-# Force Gemini
-python main.py scan --repo https://github.com/example/repo --provider google
-
-# Force OpenAI
-python main.py scan --repo https://github.com/example/repo --provider openai
-```
-
 ---
 
-## ⚙️ Configuration (`config/config.yaml`)
+## 🧪 Running Tests
 
-Customize rules, thresholds, and behavior:
-
-```yaml
-repo:
-  url: "https://github.com/org/repo"
-  branch: "main"
-  token_env: "GITHUB_TOKEN"
-
-ai:
-  provider: "auto"
-  fallback_order: ["anthropic", "openai", "google"]
-  max_fix_retries: 3
-  temperature: 0.1
-
-scanning:
-  severity_threshold: "MEDIUM"  # LOW | MEDIUM | HIGH | CRITICAL
-  scanners: ["sast", "secrets", "sca", "iac"]
-  exclude_paths: ["node_modules/**", "vendor/**", ".git/**"]
-
-testing:
-  timeout_seconds: 180
-  require_pass: true
-  generate_ai_tests: true
-
-pr:
-  draft: false
-  reviewers: ["security-team"]
-  labels: ["security", "vulscan-agent"]
-```
-
----
-
-## 🧪 Running Unit Tests
-
-Run VulScanAgent's own test suite:
+Run VulScanAgent's full test suite:
 
 ```bash
 pytest -v
 ```
 
+All **28 tests** covering scanners, prompt quarantine parsers, AST syntax validators, HMAC webhook verification, and multi-agent roles pass in under 2 seconds.
+
 ---
 
-## 🛡️ Security Guarantees
+## 🛡️ Enterprise Security Guardrails
 
-- **No Blind Auto-Merges**: Human security approval is strictly required for every PR.
-- **Surgical Code Modifications**: The agent only changes code directly related to the vulnerability and preserves existing business logic.
-- **AST Pre-validation**: Code with syntax errors is rejected before testing or committing.
-- **Credential Masking**: Detected secrets are never exposed unmasked in PR descriptions.
+Inspired by the [awesome-agent-security](https://github.com/basitalisandhu/awesome-agent-security) standard, VulScanAgent implements strict runtime controls:
+
+- **Path Traversal Shield**: Strictly verifies all target files resolve inside the repository root; blocks directory traversal escapes (`../`).
+- **Command Sanitizer**: Rejects raw shell metacharacters (`;`, `&&`, `||`, backticks) and dangerous command patterns before tool execution.
+- **Automated Secret Masking**: Strips and redacts AWS keys, GitHub tokens, and API credentials from logs, console, and PR descriptions.
+- **AST Pre-validation**: Parses patched code into an Abstract Syntax Tree to ensure syntax validity before touching the filesystem.
+- **Zero Auto-Merge Policy**: Mandates human approval for every Pull Request; never merges code automatically.
+
+---
+
+## 📄 License
+
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
