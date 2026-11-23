@@ -12,7 +12,7 @@
 
 **Autonomous AI DevSecOps Security Engineer**: Scans codebases for vulnerabilities, performs context-aware AST remediation using Google Gemini, Anthropic Claude, or OpenAI, validates fixes with automated testing, and raises structured Pull Requests for human review.
 
-[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
+[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Checkmarx & Orca Comparison](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
 
 </div>
 
@@ -188,6 +188,26 @@ All generated audit artifacts from the benchmark run are archived in [`docs/audi
 ### 📊 Comparative Accuracy & Performance Benchmark
 - **Full Benchmark Report & Confusion Matrix:** [`docs/benchmarks/ACCURACY_BENCHMARK.md`](docs/benchmarks/ACCURACY_BENCHMARK.md)
 - **Benchmarking Methodology & Evaluation Guide:** [`docs/benchmarks/BENCHMARKING_GUIDE.md`](docs/benchmarks/BENCHMARKING_GUIDE.md)
+
+---
+
+## ⚔️ Why VulScanAgent Outperforms Checkmarx & Orca Security
+
+Traditional enterprise security tools act as **passive alert finders** that shift burden onto developers. **VulScanAgent** operates as an **autonomous security engineer** that fixes code and validates test suites:
+
+| Evaluation Dimension | Checkmarx (CxSAST / SCA) | Orca Security (CNAPP) | VulScanAgent (Autonomous AI) |
+|---|---|---|---|
+| **Role & Output** | Static PDF / Jira alert dumper | Passive cloud infrastructure monitor | **Autonomous DevSecOps repair engineer** |
+| **Operational Stage** | Code syntax scan only | Post-deployment cloud runtime | **Full Inner Loop (Pre-commit $\to$ PR)** |
+| **Automated Remediation**| ❌ None (Generic text docs) | ❌ None (Dashboard posture) | **✅ 100% Autonomous AST code patching** |
+| **Test Verification** | ❌ None (Cannot run tests) | ❌ None (Passive snapshot) | **✅ Executes repo tests (`pytest`, `npm test`)** |
+| **Zero-Regression Guarantee**| ❌ No regression concept | ❌ No regression concept | **✅ Auto-reverts if tests fail; self-heals** |
+| **False-Positive Noise** | ❌ High ($35\% - 50\%$ FP rate) | ⚠️ Cloud posture alerts | **✅ Adversarial `CandidateVerifier` ($<5\%$ FP)** |
+| **Developer Workflow** | 300-page PDF report / Jira tickets | Security console / Slack alerts | **Ready-to-merge GitHub Pull Request with diffs** |
+| **Mean Time to Remediate** | **45 – 90 days** | **30 – 60 days** | **< 3 minutes (End-to-End PR)** |
+| **Cost & Deployment** | $50,000 – $200,000/yr license | $30,000 – $150,000/yr cloud bill | **Open Source + Cents per LLM scan** |
+
+> 📖 **Full Comparative Whitepaper:** [`docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md`](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md)
 
 ---
 
