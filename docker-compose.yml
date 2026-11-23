@@ -1,0 +1,27 @@
+services:
+  vulscan-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vulscan-agent:latest
+    container_name: vulscan-agent
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Seamlessly inherit API keys from host environment or .env
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - AI_PROVIDER=${AI_PROVIDER:-auto}
+    volumes:
+      # Persist scan results & logs to host machine
+      - ./scans_output:/app/scans_output
+    restart: unless-stopped
+    # Security hardening for sandboxed code execution
+    security_opt:
+      - no-new-privileges:true

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulScanAgent — Autonomous AI Security Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0F172A',
+                        cardbg: '#1E293B',
+                        accent: '#3B82F6',
+                        accenthover: '#2563EB',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkbg text-slate-100 min-h-screen font-sans antialiased">
+    <!-- Navbar -->
+    <header class="border-b border-slate-800 bg-cardbg/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🛡️</span>
+                <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    VulScanAgent
+                </span>
+                <span class="bg-blue-900/50 text-blue-300 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-blue-700/50">
+                    Autonomous Fixer
+                </span>
+            </div>
+            <div class="flex items-center space-x-4 text-sm">
+                <span class="flex items-center space-x-2 text-slate-400">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Engine Online</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <!-- Top Stats Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-cardbg rounded-xl p-5 border border-slate-800 shadow-lg">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Scans</div>
+                <div class="text-3xl font-bold mt-2 text-blue-400">{{ stats.total_scans }}</div>
+            </div>
+            <div class="bg-cardbg rounded-xl p-5 border border-slate-800 shadow-lg">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Vulnerabilities Found</div>
+                <div class="text-3xl font-bold mt-2 text-amber-400">{{ stats.total_findings }}</div>
+            </div>
+            <div class="bg-cardbg rounded-xl p-5 border border-slate-800 shadow-lg">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Auto-Remediated</div>
+                <div class="text-3xl font-bold mt-2 text-emerald-400">{{ stats.total_fixed }}</div>
+            </div>
+            <div class="bg-cardbg rounded-xl p-5 border border-slate-800 shadow-lg">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pull Requests Raised</div>
+                <div class="text-3xl font-bold mt-2 text-purple-400">{{ stats.total_prs }}</div>
+            </div>
+        </div>
+
+        <!-- Trigger Scan Panel -->
+        <div class="bg-cardbg rounded-xl p-6 border border-slate-800 shadow-lg space-y-4">
+            <h2 class="text-lg font-bold flex items-center space-x-2">
+                <span>⚡</span>
+                <span>Launch Autonomous Vulnerability Scan</span>
+            </h2>
+            <form id="scanForm" class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div class="md:col-span-5">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">GitHub Repository URL (Public or Private)</label>
+                    <input type="text" name="repo_url" id="repo_url" required placeholder="https://github.com/org/repo"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Branch</label>
+                    <input type="text" name="branch" id="branch" value="main"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Min Severity</label>
+                    <select name="severity" id="severity"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM" selected>MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                        <option value="CRITICAL">CRITICAL</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">AI Provider</label>
+                    <select name="provider" id="provider"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="auto" selected>Auto (Cascade)</option>
+                        <option value="anthropic">Claude 3.5</option>
+                        <option value="openai">OpenAI GPT-4o</option>
+                        <option value="google">Google Gemini</option>
+                    </select>
+                </div>
+                <div class="md:col-span-1 flex items-end">
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg text-sm transition duration-150 shadow-md">
+                        Scan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Scan Jobs Table -->
+        <div class="bg-cardbg rounded-xl border border-slate-800 shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center space-x-2">
+                    <span>📋</span>
+                    <span>Scan Activity & Pull Requests</span>
+                </h3>
+                <span class="text-xs text-slate-400">Auto-refreshes every 5 seconds</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/60 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+                        <tr>
+                            <th class="px-6 py-3.5">Job ID</th>
+                            <th class="px-6 py-3.5">Target Repository</th>
+                            <th class="px-6 py-3.5">Branch</th>
+                            <th class="px-6 py-3.5">Threshold</th>
+                            <th class="px-6 py-3.5">Status</th>
+                            <th class="px-6 py-3.5">Findings</th>
+                            <th class="px-6 py-3.5">Fixed</th>
+                            <th class="px-6 py-3.5">Pull Requests</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobsTableBody" class="divide-y divide-slate-800">
+                        {% for job in jobs %}
+                        <tr class="hover:bg-slate-800/40 transition">
+                            <td class="px-6 py-4 font-mono text-xs text-blue-400">{{ job.id }}</td>
+                            <td class="px-6 py-4 font-medium text-slate-200">{{ job.repo_url }}</td>
+                            <td class="px-6 py-4">{{ job.branch }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-0.5 rounded text-xs font-semibold
+                                    {% if job.severity_threshold == 'CRITICAL' %}bg-red-900/50 text-red-300 border border-red-700/50
+                                    {% elif job.severity_threshold == 'HIGH' %}bg-orange-900/50 text-orange-300 border border-orange-700/50
+                                    {% elif job.severity_threshold == 'MEDIUM' %}bg-yellow-900/50 text-yellow-300 border border-yellow-700/50
+                                    {% else %}bg-cyan-900/50 text-cyan-300 border border-cyan-700/50{% endif %}">
+                                    {{ job.severity_threshold.value }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-0.5 rounded text-xs font-bold
+                                    {% if job.status == 'COMPLETED' %}bg-emerald-900/40 text-emerald-400
+                                    {% elif job.status == 'RUNNING' %}bg-blue-900/40 text-blue-400 animate-pulse
+                                    {% elif job.status == 'FAILED' %}bg-rose-900/40 text-rose-400
+                                    {% else %}bg-slate-700 text-slate-300{% endif %}">
+                                    {{ job.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-amber-400">{{ job.findings_count }}</td>
+                            <td class="px-6 py-4 font-semibold text-emerald-400">{{ job.fixed_count }}</td>
+                            <td class="px-6 py-4 space-y-1">
+                                {% if job.prs %}
+                                    {% for pr in job.prs %}
+                                    <a href="{{ pr }}" target="_blank" class="inline-flex items-center space-x-1 text-xs text-purple-400 hover:text-purple-300 underline font-mono">
+                                        <span>PR 🔗</span>
+                                    </a>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-xs text-slate-500">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-8 text-center text-slate-500">
+                                No scan jobs yet. Enter a repository URL above to launch your first autonomous scan!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Auto-polling script -->
+    <script>
+        document.getElementById('scanForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            try {
+                const res = await fetch('/scan/trigger', { method: 'POST', body: formData });
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to launch scan.');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // Periodic refresh of jobs table
+        setInterval(async () => {
+            try {
+                const res = await fetch('/api/jobs');
+                const jobs = await res.json();
+                if (!jobs || jobs.length === 0) return;
+
+                const tbody = document.getElementById('jobsTableBody');
+                tbody.innerHTML = jobs.map(job => {
+                    const sevClass = job.severity_threshold === 'CRITICAL' ? 'bg-red-900/50 text-red-300 border-red-700/50' :
+                                    job.severity_threshold === 'HIGH' ? 'bg-orange-900/50 text-orange-300 border-orange-700/50' :
+                                    job.severity_threshold === 'MEDIUM' ? 'bg-yellow-900/50 text-yellow-300 border-yellow-700/50' :
+                                    'bg-cyan-900/50 text-cyan-300 border-cyan-700/50';
+
+                    const statusClass = job.status === 'COMPLETED' ? 'bg-emerald-900/40 text-emerald-400' :
+                                        job.status === 'RUNNING' ? 'bg-blue-900/40 text-blue-400 animate-pulse' :
+                                        job.status === 'FAILED' ? 'bg-rose-900/40 text-rose-400' : 'bg-slate-700 text-slate-300';
+
+                    const prsHtml = job.prs && job.prs.length > 0 
+                        ? job.prs.map(pr => `<a href="${pr}" target="_blank" class="inline-flex items-center space-x-1 text-xs text-purple-400 hover:text-purple-300 underline font-mono"><span>PR 🔗</span></a>`).join(' ')
+                        : '<span class="text-xs text-slate-500">—</span>';
+
+                    return `
+                        <tr class="hover:bg-slate-800/40 transition">
+                            <td class="px-6 py-4 font-mono text-xs text-blue-400">${job.id}</td>
+                            <td class="px-6 py-4 font-medium text-slate-200">${job.repo_url}</td>
+                            <td class="px-6 py-4">${job.branch}</td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-xs font-semibold border ${sevClass}">${job.severity_threshold}</span></td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-xs font-bold ${statusClass}">${job.status}</span></td>
+                            <td class="px-6 py-4 font-semibold text-amber-400">${job.findings_count}</td>
+                            <td class="px-6 py-4 font-semibold text-emerald-400">${job.fixed_count}</td>
+                            <td class="px-6 py-4 space-y-1">${prsHtml}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

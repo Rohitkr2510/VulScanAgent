@@ -1,0 +1,58 @@
+# VulScanAgent Configuration
+
+# Target repository details
+repo:
+  url: "https://github.com/example/sample-repo"
+  branch: "main"
+  token_env: "GITHUB_TOKEN"
+  clone_depth: 1
+
+# AI Fix Engine settings
+ai:
+  # Provider: openai | anthropic | google | auto
+  provider: "auto"
+  fallback_order:
+    - "anthropic"
+    - "openai"
+    - "google"
+  max_fix_retries: 3
+  temperature: 0.1
+  models:
+    openai: "gpt-4o"
+    anthropic: "claude-3-5-sonnet-20241022"
+    google: "gemini-3.5-flash"
+
+# Scanning & Detection settings
+scanning:
+  # Minimum severity to trigger an auto-fix: LOW | MEDIUM | HIGH | CRITICAL
+  severity_threshold: "MEDIUM"
+  scanners:
+    - "sast"
+    - "secrets"
+    - "sca"
+    - "iac"
+  exclude_paths:
+    - "node_modules/**"
+    - "vendor/**"
+    - ".git/**"
+    - "*.min.js"
+    - "dist/**"
+    - "build/**"
+
+# Test and verification pipeline
+testing:
+  timeout_seconds: 180
+  require_pass: true           # If true, only create PR if existing tests pass
+  generate_ai_tests: true      # Automatically synthesize regression test for fix
+  custom_test_cmd: ""          # If specified, overrides auto-detected test command
+
+# Pull Request generation settings
+pr:
+  draft: false
+  reviewers: []
+  labels:
+    - "security"
+    - "vulscan-agent"
+    - "automated-fix"
+  one_pr_per_vuln: false       # false = combine compatible fixes into a single PR
+  title_prefix: "[VulScanAgent]"
