@@ -80,9 +80,59 @@ def verify_keys():
     console.print(f"Available AI Providers: [bold green]{', '.join(providers) if providers else '[red]None[/red]'}[/bold green]")
 
     if not providers:
-        console.print("[yellow]Tip: Add your OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY to .env[/yellow]")
+        console.print("[yellow]Tip: Run 'vulscan configure' to safely enter your API keys.[/yellow]")
     else:
         console.print("[green]Ready to remediate code![/green]")
+
+
+@app.command()
+def configure():
+    """Securely configure API keys with masked input and restricted file permissions (600)."""
+    import stat
+    from typing import Dict
+
+    console.print("\n[bold cyan]🔐 VulScanAgent Secure Credential Configuration[/bold cyan]")
+    console.print("Keystrokes are masked (*), omitted from shell history, and stored in restricted user profile (600).\n")
+
+    vulscan_dir = Path.home() / ".vulscan"
+    vulscan_dir.mkdir(parents=True, exist_ok=True)
+    creds_file = vulscan_dir / "credentials.env"
+
+    existing: Dict[str, str] = {}
+    if creds_file.exists():
+        for line in creds_file.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                existing[k.strip()] = v.strip().strip("'\"")
+
+    def prompt_key(name: str, label: str) -> str:
+        curr = existing.get(name, "")
+        prompt_txt = f"{label} {'[current: ' + curr[:4] + '...' + curr[-4:] + ']' if curr else ''}"
+        val = typer.prompt(prompt_txt, default="", hide_input=True, show_default=False)
+        return val.strip() if val.strip() else curr
+
+    gemini_key = prompt_key("GEMINI_API_KEY", "Google Gemini API Key (Enter to keep/skip):")
+    anthropic_key = prompt_key("ANTHROPIC_API_KEY", "Anthropic Claude API Key (Optional):")
+    openai_key = prompt_key("OPENAI_API_KEY", "OpenAI API Key (Optional):")
+    gh_token = prompt_key("GITHUB_TOKEN", "GitHub Token (Optional for PR creation):")
+
+    lines = [
+        "# VulScanAgent User Credentials (Restricted Permissions 600)",
+        f"GEMINI_API_KEY={gemini_key}",
+        f"ANTHROPIC_API_KEY={anthropic_key}",
+        f"OPENAI_API_KEY={openai_key}",
+        f"GITHUB_TOKEN={gh_token}",
+    ]
+
+    creds_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    try:
+        creds_file.chmod(stat.S_IRUSR | stat.S_IWUSR)
+    except Exception:
+        pass
+
+    console.print(f"\n[bold green]✅ Credentials securely saved to:[/bold green] {creds_file}")
+    console.print("[dim]VulScanAgent will automatically load these credentials across all CLI, Docker, and CI runs.[/dim]\n")
 
 
 @app.command()

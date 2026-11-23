@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 
 from agent.models import VulnerabilitySeverity
 
+user_creds = Path.home() / ".vulscan" / "credentials.env"
+if user_creds.exists():
+    load_dotenv(user_creds)
 load_dotenv()
 
 

@@ -1,8 +1,12 @@
 import os
 import logging
 from typing import Optional, Tuple, Dict, Any
+from pathlib import Path
 from dotenv import load_dotenv
 
+user_creds = Path.home() / ".vulscan" / "credentials.env"
+if user_creds.exists():
+    load_dotenv(user_creds)
 load_dotenv()
 
 logger = logging.getLogger(__name__)
