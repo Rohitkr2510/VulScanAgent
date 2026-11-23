@@ -12,7 +12,7 @@
 
 **Autonomous AI DevSecOps Security Engineer**: Scans codebases for vulnerabilities, performs context-aware AST remediation using Google Gemini, Anthropic Claude, or OpenAI, validates fixes with automated testing, and raises structured Pull Requests for human review.
 
-[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Checkmarx & Orca Comparison](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
+[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Cost Estimation & ROI](docs/comparisons/REALISTIC_COST_ESTIMATION.md) • [Competitive Comparisons](docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
 
 </div>
 
@@ -207,9 +207,18 @@ Traditional enterprise security tools act as **passive alert finders** that shif
 | **Mean Time to Remediate** | **45 – 90 days** | **30 – 60 days** | **< 3 minutes (End-to-End PR)** |
 | **Cost & Deployment** | $50,000 – $200,000/yr license | $30,000 – $150,000/yr cloud bill | **Open Source + Cents per LLM scan** |
 
-> 📖 **Comparative Whitepapers:**
-> - **Enterprise Showdown (vs. Checkmarx & Orca Security):** [`docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md`](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md)
-> - **Industry Landscape (vs. Snyk, SonarQube, Dependabot, Wiz, CodeQL & Fortify):** [`docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md`](docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md)
+### 💰 Realistic Cost Scaling (1, 10, 100, and 1,000 Repositories)
+
+| Fleet Size | Monthly Scans (~10/repo) | Monthly AI Tokens (Gemini Flash) | Monthly AI Tokens (Hybrid Tier) | Compute (CI/Docker) | Total Monthly Cost | Legacy Tools (Snyk/Checkmarx) | Annual Net Savings |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **1 Repo** | 10 | $0.02 | **$0.38** | $0.00 | **< $0.50 / mo** | $100 – $250 / mo | **~$1,200 – $3,000 / yr** |
+| **10 Repos** | 100 | $0.23 | **$3.80** | $1.00 | **~$4.80 / mo** | $1,200 – $3,500 / mo | **~$14,000 – $42,000 / yr** |
+| **100 Repos** | 1,000 | $2.30 | **$38.00** | $15.00 | **~$53.00 / mo** | $6,000 – $18,000 / mo | **~$70,000 – $215,000 / yr** |
+| **1,000 Repos** | 10,000 | $23.00 | **$380.00** | $80.00 | **~$460.00 / mo** | $25,000 – $75,000 / mo | **~$300,000 – $900,000 / yr** |
+
+> 📖 **Full Financial Model & ROI Whitepaper:** [`docs/comparisons/REALISTIC_COST_ESTIMATION.md`](docs/comparisons/REALISTIC_COST_ESTIMATION.md)  
+> 📖 **Enterprise Showdown (vs. Checkmarx & Orca Security):** [`docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md`](docs/comparisons/CHECKMARX_AND_ORCA_COMPARISON.md)  
+> 📖 **Industry Landscape (vs. Snyk, SonarQube, Dependabot, Wiz, CodeQL & Fortify):** [`docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md`](docs/comparisons/POPULAR_TOOLS_COMPETITIVE_ANALYSIS.md)
 
 ---
 
