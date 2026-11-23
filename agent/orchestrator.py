@@ -88,9 +88,15 @@ class VulScanOrchestrator:
             repo_dir = connector.clone()
 
         try:
-            # 2. Agent 1: ScanStrategist assesses repository
+            # 2. Agent 1: ScanStrategist assesses repository (Cloudflare Phase 1 Recon & Architecture)
+            ledger: Optional[CoverageLedger] = None
             try:
                 self.strategist.assess_repository(repo_dir)
+                ledger_file = repo_dir / "coverage-ledger.json"
+                if ledger_file.exists():
+                    import json
+                    ledger_data = json.loads(ledger_file.read_text(encoding="utf-8"))
+                    ledger = CoverageLedger(**ledger_data)
             except Exception as e:
                 logger.warning(f"Strategist assessment note: {e}")
 
@@ -298,7 +304,8 @@ class VulScanOrchestrator:
                     repo_dir=repo_dir,
                     all_candidates=raw_findings,
                     confirmed_findings=confirmed_findings,
-                    fix_results=fix_results
+                    fix_results=fix_results,
+                    ledger=ledger
                 )
                 console.print(f"[bold cyan]📑 Audit Artifacts Generated:[/bold cyan] {', '.join(artifacts.keys())}")
             except Exception as e:

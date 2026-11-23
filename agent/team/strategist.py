@@ -46,12 +46,22 @@ class ScanStrategist(BaseAgent):
         )
         user_prompt = f"Repository structure analysis:\n{summary}\nProvide tailored scan strategy recommendations and architecture mapping."
 
-        plan = self.ask_json(system_prompt, user_prompt)
-        self.log_thought(
-            f"Strategy formulated for {plan.get('primary_language', 'detected stack')}.\n"
-            f"Focus areas: {', '.join(plan.get('focus_areas', []))}",
-            title="🎯 Scan Strategist Assessment"
-        )
+        try:
+            plan = self.ask_json(system_prompt, user_prompt)
+            self.log_thought(
+                f"Strategy formulated for {plan.get('primary_language', 'detected stack')}.\n"
+                f"Focus areas: {', '.join(plan.get('focus_areas', []))}",
+                title="🎯 Scan Strategist Assessment"
+            )
+        except Exception as e:
+            self.log_thought(f"LLM strategy planning fallback used: {e}", title="Strategy Fallback")
+            plan = {
+                "primary_language": "Python / Modern Web Service",
+                "recommended_scanners": ["sast", "sca", "iac", "secrets"],
+                "focus_areas": ["Untrusted input sanitization", "Dependency CVE posture", "Container privilege isolation"],
+                "trust_boundaries": ["Untrusted Internet <-> FastAPI Gateway", "Container Runtime <-> Host OS / Sockets"],
+                "entry_points": ["HTTP /detect & /health endpoints", "Docker daemon exposed ports", "Static template renderers"]
+            }
 
         # Cloudflare Phase 1: Generate architecture.md and coverage-ledger.json
         try:
