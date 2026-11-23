@@ -37,12 +37,16 @@
   - Handles **public and private** repositories via Personal Access Tokens.
   - Creates isolated branches (`fix/vuln-<id>`).
   - Generates comprehensive PR descriptions with CVE references, root-cause analysis, test badges, and human reviewer checklists.
+- 🏛️ **Cloudflare Security Audit Skill Standard**:
+  - Separation of hunting and validation: Dedicated `CandidateVerifier` adversarially challenges scanner findings to eliminate false positives.
+  - Stateful `coverage-ledger.json` partitions code into bounded units to track audit completeness and prevent context drift.
+  - Automatically produces Cloudflare multi-report suites: `REPORT.md`, `FINDINGS-DETAIL.md`, `NEEDS-VALIDATION.md`, and `architecture.md`.
 
 ---
 
 ## 👥 Multi-Agent Collaborative Architecture
 
-Inspired by advanced agentic workflows (e.g. [salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI](https://github.com/salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI) and [awesome-agent-security](https://github.com/basitalisandhu/awesome-agent-security)), **VulScanAgent** operates as a specialized multi-agent security team rather than a single generalist prompt:
+Inspired by advanced agentic workflows (e.g. [salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI](https://github.com/salah9003/Automated-Vulnerability-Scanning-with-Agentic-AI), [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill), and [awesome-agent-security](https://github.com/basitalisandhu/awesome-agent-security)), **VulScanAgent** operates as a specialized multi-agent security team rather than a single generalist prompt:
 
 ```mermaid
 flowchart TD
@@ -80,6 +84,7 @@ flowchart TD
 | **`ScanStrategist`** | Recon & Planning | Inspects repo topology, manifests (`package.json`, `pyproject.toml`, `Dockerfile`) and tailors attack vectors. |
 | **`FixArchitect`** | Remediation | Synthesizes minimal AST code patches preserving existing coding style and business logic. |
 | **`SecurityReviewer`** | Senior Critic | Critiques proposed patches against MITRE ATT&CK & OWASP standards; prevents secondary vulnerabilities. |
+| **`CandidateVerifier`** | Adversarial Auditor | Cloudflare Phase 3 specialist: actively attempts to DISPROVE candidate vulnerabilities and filter false positives. |
 | **`ErrorDiagnostician`** | Failure Specialist | When tests or compilation fail, parses tracebacks and provides actionable fix prescriptions. |
 | **`TestVerifier`** | Verification | Coordinates test execution, monitors timeouts, and synthesizes targeted regression tests. |
 | **`PRAuditor`** | Technical Writer | Compiles executive security summaries, reviewer checklists, and GitHub Pull Request documentation. |

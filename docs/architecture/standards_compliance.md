@@ -85,3 +85,33 @@ To safely operate in production and defend against malicious actors attempting t
 ### 4.2 Credential Protection & Redaction
 - Discovered secrets (AWS keys, GitHub tokens, passwords) are automatically masked in memory (`AKIA...` -> `AKIA********CDEF`) before generating logs, dashboard views, or Pull Request descriptions.
 - API keys are injected exclusively via environment variables and never persisted into `.git` metadata or state files.
+
+---
+
+## 5. Cloudflare security-audit-skill Framework Integration
+
+VulScanAgent incorporates the core architectural methodology of Cloudflare's open-source [security-audit-skill](https://github.com/cloudflare/security-audit-skill) to eliminate AI hallucination, context drift, and false positives in large codebases:
+
+### 5.1 The Adversarial Verifier Principle (Separation of Hunting & Validation)
+- **Core Tenet:** *"The agent that hunts is NEVER the agent that validates."*
+- Raw scanner output is strictly classified as **Candidate Findings** (`CandidateFinding`).
+- An independent, dedicated `CandidateVerifier` agent is summoned specifically to try to **DISPROVE** the vulnerability by tracing reachability from external entry points to data sinks.
+- Candidates are triaged into:
+  - `CONFIRMED`: Real, exploit path proven.
+  - `NEEDS_VALIDATION`: Plausible, requires runtime/environment verification.
+  - `REJECTED`: Disproved false positive (e.g. mitigated by upstream framework, sanitized, or dead code).
+
+### 5.2 Stateful Externalized Ledgers (`coverage-ledger.json`)
+- Rather than relying on transient LLM context memory, audit progress is externalized to a machine-readable ledger: `coverage-ledger.json`.
+- The codebase is segmented into bounded units of work (`manifests_dependencies`, `source_code`, `container_iac`, `tests_fixtures`).
+- The ledger guarantees complete, methodical inspection and tracks coverage percentages across scan cycles.
+
+### 5.3 Architectural & Threat Boundary Mapping (`architecture.md`)
+- During Phase 1 Reconnaissance, `ScanStrategist` generates an externalized threat model map: `architecture.md`.
+- Documents trust boundaries, principals, external input surfaces, and dangerous data sinks before scanning commences.
+
+### 5.4 Standardized Multi-Report Audit Artifacts
+- **`REPORT.md`**: Target-neutral executive scorecard with coverage metrics, candidate triage breakdown, and remediation results.
+- **`FINDINGS-DETAIL.md`**: Deep technical vulnerability profiles with CWE, CVSS, Taint flow (Source -> Transform -> Sink), and verified patches.
+- **`NEEDS-VALIDATION.md`**: Clear instructions for edge-case findings requiring human runtime testing.
+

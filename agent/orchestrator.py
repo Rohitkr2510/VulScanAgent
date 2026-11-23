@@ -18,6 +18,8 @@ from agent.models import (
     TestStatus,
     PRInfo,
     VulnerabilitySeverity,
+    CandidateStatus,
+    CoverageLedger,
 )
 from agent.scanner import CompositeScanner
 from agent.ai_fix.provider_router import AIProviderRouter
@@ -31,6 +33,7 @@ from agent.team import (
     ErrorDiagnostician,
     FixArchitect,
     TestVerifier,
+    CandidateVerifier,
     PRAuditor,
 )
 
@@ -63,6 +66,7 @@ class VulScanOrchestrator:
         self.security_reviewer = SecurityReviewer(self.router)
         self.error_diagnostician = ErrorDiagnostician(self.router)
         self.test_verifier = TestVerifier(self.router)
+        self.candidate_verifier = CandidateVerifier(self.router)
         self.pr_auditor = PRAuditor(self.router)
 
     def run(self, local_repo_override: Optional[Path] = None) -> Dict[str, Any]:
@@ -95,22 +99,40 @@ class VulScanOrchestrator:
             baseline_result = self.test_runner.run_tests(repo_dir)
             console.print(f"Baseline test status: [bold]{baseline_result.status.value}[/bold] (exit code {baseline_result.exit_code})")
 
-            # 4. Multi-Layer Vulnerability Scan
-            console.print(f"\n[bold magenta]🔍 Scanning codebase (Threshold: {self.config.scanning.severity_threshold.value})...[/bold magenta]")
-            findings = self.scanner.run_all(repo_dir, self.config.scanning.severity_threshold)
+            # 4. Multi-Layer Vulnerability Scan (Cloudflare Phase 2: Coverage-Led Hunting)
+            console.print(f"\n[bold magenta]🔍 Phase 2 — Multi-Layer Codebase Scan (Threshold: {self.config.scanning.severity_threshold.value})...[/bold magenta]")
+            raw_findings = self.scanner.run_all(repo_dir, self.config.scanning.severity_threshold)
 
-            self._display_findings_table(findings)
+            self._display_findings_table(raw_findings)
 
-            if not findings:
+            if not raw_findings:
                 console.print("\n[bold green]🎉 Zero vulnerabilities found meeting threshold. Repository is secure![/bold green]\n")
+                return {"status": "clean", "findings": 0, "fixed": 0, "prs": []}
+
+            # Phase 3: Cloudflare Adversarial Candidate Validation
+            console.print("\n[bold magenta]⚖️ Phase 3 — Adversarial Candidate Validation (Cloudflare Audit Principle)...[/bold magenta]")
+            confirmed_findings: List[VulFinding] = []
+            for candidate in raw_findings:
+                file_path = repo_dir / candidate.file_path
+                content = file_path.read_text(encoding="utf-8", errors="ignore") if file_path.exists() else ""
+                verdict = self.candidate_verifier.verify_candidate(candidate, content)
+                candidate.validation_status = verdict.status
+                candidate.validation_verdict = verdict
+                if verdict.status in [CandidateStatus.CONFIRMED, CandidateStatus.NEEDS_VALIDATION]:
+                    confirmed_findings.append(candidate)
+                else:
+                    console.print(f"  [dim yellow]Skipping disproved candidate {candidate.id}: {verdict.disproof_rationale}[/dim yellow]")
+
+            if not confirmed_findings:
+                console.print("\n[bold green]🎉 All scanner candidates were disproved as false positives. Repository is secure![/bold green]\n")
                 return {"status": "clean", "findings": 0, "fixed": 0, "prs": []}
 
             # 5. Multi-Agent Remediation Loop
             fix_results: List[FixResult] = []
             prs_created: List[PRInfo] = []
 
-            for idx, finding in enumerate(findings, start=1):
-                console.print(f"\n[bold yellow]━━━ Remediating Finding {idx}/{len(findings)}: [{finding.severity.value}] {finding.title} ━━━[/bold yellow]")
+            for idx, finding in enumerate(confirmed_findings, start=1):
+                console.print(f"\n[bold yellow]━━━ Remediating Finding {idx}/{len(confirmed_findings)}: [{finding.severity.value}] {finding.title} ━━━[/bold yellow]")
                 safe_id = re.sub(r"[^a-zA-Z0-9_-]", "_", finding.id.lower())
                 branch_name = f"fix/{safe_id}"
 
@@ -270,10 +292,24 @@ class VulScanOrchestrator:
                         original_file_path.write_text(original_backup, encoding="utf-8")
                         console.print(f"  [yellow]↩️ Reverted changes to {finding.file_path} due to failed fix/tests.[/yellow]")
 
+            # Phase 6: Cloudflare-Style Target-Neutral Multi-Report Artifacts
+            try:
+                artifacts = self.pr_auditor.generate_audit_artifacts(
+                    repo_dir=repo_dir,
+                    all_candidates=raw_findings,
+                    confirmed_findings=confirmed_findings,
+                    fix_results=fix_results
+                )
+                console.print(f"[bold cyan]📑 Audit Artifacts Generated:[/bold cyan] {', '.join(artifacts.keys())}")
+            except Exception as e:
+                logger.warning(f"Audit artifact generation note: {e}")
+
             console.print("\n[bold green]🏁 VulScanAgent Collaborative Execution Complete.[/bold green]")
             return {
                 "status": "complete",
-                "findings": len(findings),
+                "findings": len(confirmed_findings),
+                "candidates": len(raw_findings),
+                "confirmed": len(confirmed_findings),
                 "fixed": sum(1 for f in fix_results if f.success),
                 "prs": [pr.pr_url for pr in prs_created],
             }

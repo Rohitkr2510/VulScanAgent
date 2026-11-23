@@ -33,6 +33,24 @@ class VulnerabilityCategory(str, Enum):
     IAC = "iac"
 
 
+class CandidateStatus(str, Enum):
+    """Cloudflare security-audit-skill verification classification."""
+    CANDIDATE = "candidate"
+    CONFIRMED = "confirmed"
+    NEEDS_VALIDATION = "needs_validation"
+    REJECTED = "rejected"
+
+
+class ValidationVerdict(BaseModel):
+    """Adversarial verification result from CandidateVerifier agent."""
+    status: CandidateStatus
+    confidence_score: int = Field(default=5, ge=1, le=10, description="Confidence in verdict (1-10)")
+    reachability_proven: bool = Field(default=False, description="Whether untrusted input realistically reaches sink")
+    disproof_rationale: str = Field(default="", description="Adversarial reasoning proving or disproving finding")
+    taint_path: Optional[str] = Field(default=None, description="Traced dataflow: Source -> Sanitizer -> Sink")
+    prerequisites: Optional[str] = Field(default=None, description="Pre-conditions or environment assumptions required")
+
+
 class VulFinding(BaseModel):
     """Normalized finding across SAST, SCA, Secrets, and IaC scanners."""
     id: str = Field(description="Unique identifier for finding")
@@ -52,6 +70,8 @@ class VulFinding(BaseModel):
     code_snippet: Optional[str] = Field(default=None, description="Vulnerable code snippet")
     remediation_hint: Optional[str] = Field(default=None, description="Suggested guidance for fixing")
     raw_scanner_data: Dict[str, Any] = Field(default_factory=dict, description="Original tool output")
+    validation_status: CandidateStatus = Field(default=CandidateStatus.CONFIRMED, description="Cloudflare audit validation status")
+    validation_verdict: Optional[ValidationVerdict] = Field(default=None, description="Detailed adversarial disproof analysis")
 
 
 class FixAttempt(BaseModel):
@@ -129,4 +149,27 @@ class PRInfo(BaseModel):
     title: str
     body: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class CoverageUnit(BaseModel):
+    """Cloudflare coverage-ledger unit representing bounded component/paths."""
+    unit_name: str
+    file_paths: List[str]
+    scanners_run: List[str]
+    inspected_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    findings_count: int = 0
+    status: str = "audited"
+
+
+class CoverageLedger(BaseModel):
+    """Cloudflare stateful coverage tracker: ensures methodical inspection without context drift."""
+    repo_name: str
+    commit_sha: str = ""
+    total_files: int = 0
+    audited_files: int = 0
+    coverage_percent: float = 0.0
+    units: List[CoverageUnit] = Field(default_factory=list)
+    blind_spots: List[str] = Field(default_factory=list)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
