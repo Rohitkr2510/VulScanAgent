@@ -1,0 +1,35 @@
+{
+  "suite_name": "face-recognition-devops-security-benchmark",
+  "target_repo": "Rohitkr2510/face-recognition-devops",
+  "description": "Ground truth benchmark suite evaluating SCA, IaC, and SAST false positive rejection on FastAPI OpenCV service",
+  "ground_truth": [
+    {
+      "id": "GT-01-SCA",
+      "file_path": "pyproject.toml",
+      "line_number": 8,
+      "category": "SCA",
+      "cwe": "CWE-79",
+      "rule_id": "CVE-2024-56326",
+      "is_vulnerability": true,
+      "description": "Jinja2 vulnerable version range (<3.1.5) permitting sandbox breakout"
+    },
+    {
+      "id": "GT-02-IAC",
+      "file_path": "docker-compose.yml",
+      "line_number": 5,
+      "category": "IAC",
+      "cwe": "CWE-250",
+      "rule_id": "IAC-COMPOSE-ALL-INTERFACES",
+      "is_vulnerability": true,
+      "description": "Container port mapped to 0.0.0.0 wildcard interface without loopback binding"
+    },
+    {
+      "id": "GT-03-BENIGN",
+      "file_path": "app/main.py",
+      "line_number": 28,
+      "category": "SAST",
+      "is_vulnerability": false,
+      "description": "Benign FastAPI endpoint with safe content-type verification (tests false positive avoidance)"
+    }
+  ]
+}

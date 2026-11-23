@@ -113,7 +113,15 @@ class VulScanOrchestrator:
 
             if not raw_findings:
                 console.print("\n[bold green]🎉 Zero vulnerabilities found meeting threshold. Repository is secure![/bold green]\n")
-                return {"status": "clean", "findings": 0, "fixed": 0, "prs": []}
+                return {
+                    "status": "clean",
+                    "findings": 0,
+                    "fixed": 0,
+                    "prs": [],
+                    "raw_findings_list": [],
+                    "confirmed_findings_list": [],
+                    "fix_results_list": [],
+                }
 
             # Phase 3: Cloudflare Adversarial Candidate Validation
             console.print("\n[bold magenta]⚖️ Phase 3 — Adversarial Candidate Validation (Cloudflare Audit Principle)...[/bold magenta]")
@@ -131,7 +139,15 @@ class VulScanOrchestrator:
 
             if not confirmed_findings:
                 console.print("\n[bold green]🎉 All scanner candidates were disproved as false positives. Repository is secure![/bold green]\n")
-                return {"status": "clean", "findings": 0, "fixed": 0, "prs": []}
+                return {
+                    "status": "clean",
+                    "findings": 0,
+                    "fixed": 0,
+                    "prs": [],
+                    "raw_findings_list": raw_findings,
+                    "confirmed_findings_list": [],
+                    "fix_results_list": [],
+                }
 
             # 5. Multi-Agent Remediation Loop
             fix_results: List[FixResult] = []
@@ -319,6 +335,9 @@ class VulScanOrchestrator:
                 "confirmed": len(confirmed_findings),
                 "fixed": sum(1 for f in fix_results if f.success),
                 "prs": [pr.pr_url for pr in prs_created],
+                "raw_findings_list": raw_findings,
+                "confirmed_findings_list": confirmed_findings,
+                "fix_results_list": fix_results,
             }
 
         finally:

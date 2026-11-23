@@ -85,5 +85,65 @@ def verify_keys():
         console.print("[green]Ready to remediate code![/green]")
 
 
+@app.command()
+def benchmark(
+    manifest: str = typer.Option("tests/benchmark/face_recognition_truth.json", "--manifest", "-m", help="Path to ground truth JSON manifest"),
+    local_dir: str = typer.Option(None, "--local", "-l", help="Target local repository directory"),
+    repo_url: str = typer.Option(None, "--repo", "-r", help="Target GitHub repo URL"),
+    config_file: str = typer.Option("config/config.yaml", "--config", "-c", help="Path to config.yaml"),
+    provider: str = typer.Option(None, "--provider", "-p", help="AI provider: google, anthropic, openai"),
+    severity: str = typer.Option("LOW", "--severity", "-s", help="Minimum severity threshold"),
+    output_report: str = typer.Option("docs/benchmarks/ACCURACY_BENCHMARK.md", "--output", "-o", help="Output Markdown report path"),
+):
+    """Run an automated accuracy and remediation benchmark against ground truth."""
+    import time
+    from agent.eval.benchmark import BenchmarkEvaluator
+
+    manifest_path = Path(manifest)
+    if not manifest_path.exists():
+        console.print(f"[bold red]Ground truth manifest not found:[/bold red] {manifest_path}")
+        raise typer.Exit(code=1)
+
+    config_path = Path(config_file)
+    if not config_path.exists():
+        console.print(f"[bold red]Configuration file not found:[/bold red] {config_path}")
+        raise typer.Exit(code=1)
+
+    config = AppConfig.from_yaml(config_path)
+    if repo_url:
+        config.repo.url = repo_url
+    if severity:
+        config.scanning.severity_threshold = VulnerabilitySeverity(severity.upper())
+    if provider:
+        config.ai.provider = provider.lower()
+
+    evaluator = BenchmarkEvaluator.from_json(manifest_path)
+    console.print(f"\n[bold cyan]🚀 Starting Accuracy Benchmark: {evaluator.suite.suite_name}[/bold cyan]")
+    console.print(f"Provider: [bold]{config.ai.provider}[/bold] | Ground Truth Cases: [bold]{len(evaluator.suite.ground_truth)}[/bold]\n")
+
+    start_time = time.time()
+    orchestrator = VulScanOrchestrator(config)
+    local_path = Path(local_dir) if local_dir else None
+    result = orchestrator.run(local_repo_override=local_path)
+    elapsed = time.time() - start_time
+
+    raw_candidates = result.get("raw_findings_list", [])
+    confirmed_findings = result.get("confirmed_findings_list", [])
+    fix_results = result.get("fix_results_list", [])
+
+    metrics = evaluator.evaluate(
+        raw_candidates=raw_candidates,
+        confirmed_findings=confirmed_findings,
+        fix_results=fix_results,
+        provider=config.ai.provider,
+        runtime_seconds=elapsed,
+    )
+
+    evaluator.print_terminal_scorecard(metrics)
+    if output_report:
+        report_path = evaluator.generate_markdown_report(metrics, Path(output_report))
+        console.print(f"[bold green]📄 Markdown Benchmark Report Published:[/bold green] {report_path}\n")
+
+
 if __name__ == "__main__":
     app()

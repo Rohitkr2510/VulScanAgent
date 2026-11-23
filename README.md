@@ -3,7 +3,7 @@
 <div align="center">
 
 [![CI/CD Build](https://img.shields.io/badge/CI%2FCD-Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white)](.github/workflows/vulscan.yml)
-[![Tests Passing](https://img.shields.io/badge/tests-32%20passed-success?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-33%20passed-success?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
 [![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.14-blue?style=for-the-badge&logo=python&logoColor=white)](pyproject.toml)
 [![AI Providers](https://img.shields.io/badge/AI%20Providers-OpenAI%20%7C%20Claude%20%7C%20Gemini-8a2be2?style=for-the-badge&logo=google&logoColor=white)](docs/configuration/ai_providers.md)
 [![Security Policy](https://img.shields.io/badge/Governance-Zero%20Auto--Merge-red?style=for-the-badge&logo=github&logoColor=white)](docs/architecture/agent_threat_model.md)
@@ -12,7 +12,7 @@
 
 **Autonomous AI DevSecOps Security Engineer**: Scans codebases for vulnerabilities, performs context-aware AST remediation using Google Gemini, Anthropic Claude, or OpenAI, validates fixes with automated testing, and raises structured Pull Requests for human review.
 
-[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
+[Quickstart](#-quickstart) • [Live Benchmark](#-live-benchmark-face-recognition-devops) • [Accuracy Benchmarking](docs/benchmarks/BENCHMARKING_GUIDE.md) • [Multi-Agent Architecture](#-multi-agent-collaborative-architecture) • [Presentations](#-presentation-slides--executive-demo) • [Documentation](docs/)
 
 </div>
 
@@ -184,6 +184,10 @@ All generated audit artifacts from the benchmark run are archived in [`docs/audi
 - **Runtime Validation Ledger:** [`docs/audit_reports/face_recognition_devops/NEEDS-VALIDATION.md`](docs/audit_reports/face_recognition_devops/NEEDS-VALIDATION.md)
 - **Architecture & Threat Model Map:** [`docs/audit_reports/face_recognition_devops/architecture.md`](docs/audit_reports/face_recognition_devops/architecture.md)
 - **Coverage Ledger:** [`docs/audit_reports/face_recognition_devops/coverage-ledger.json`](docs/audit_reports/face_recognition_devops/coverage-ledger.json)
+
+### 📊 Comparative Accuracy & Performance Benchmark
+- **Full Benchmark Report & Confusion Matrix:** [`docs/benchmarks/ACCURACY_BENCHMARK.md`](docs/benchmarks/ACCURACY_BENCHMARK.md)
+- **Benchmarking Methodology & Evaluation Guide:** [`docs/benchmarks/BENCHMARKING_GUIDE.md`](docs/benchmarks/BENCHMARKING_GUIDE.md)
 
 ---
 
